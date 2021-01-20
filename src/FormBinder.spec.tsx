@@ -13,7 +13,7 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .configure({ debounceChanges: 0 })
+      .config({ debounceChanges: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
@@ -41,7 +41,7 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .configure({ debounceChanges: 0 })
+      .config({ debounceChanges: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
@@ -69,7 +69,7 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .configure({ debounceChanges: 0 })
+      .config({ debounceChanges: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
@@ -99,7 +99,7 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .configure({ debounceChanges: 0 })
+      .config({ debounceChanges: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
@@ -124,7 +124,7 @@ describe("FormBinder", () => {
   })
 
   it("disables submit button during submit by default", async () => {
-    const form = createForm({}).configure({ debounceChanges: 0 })
+    const form = createForm({}).config({ debounceChanges: 0 })
     const bind = new FormBinder(form)
 
     expect(bind.button().disabled).toBe(false)
@@ -147,7 +147,7 @@ describe("FormBinder", () => {
   })
 
   it("binds input", async () => {
-    const form = createForm({ foo: "bar" }).configure({ debounceChanges: 0 })
+    const form = createForm({ foo: "bar" }).config({ debounceChanges: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -168,7 +168,7 @@ describe("FormBinder", () => {
   })
 
   it("binds select", async () => {
-    const form = createForm({ foo: "bar" }).configure({ debounceChanges: 0 })
+    const form = createForm({ foo: "bar" }).config({ debounceChanges: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -189,7 +189,7 @@ describe("FormBinder", () => {
   })
 
   it("binds checkbox", async () => {
-    const form = createForm({ foo: false }).configure({ debounceChanges: 0 })
+    const form = createForm({ foo: false }).config({ debounceChanges: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -210,7 +210,7 @@ describe("FormBinder", () => {
   })
 
   it("binds radio", async () => {
-    const form = createForm({ foo: "b" }).configure({ debounceChanges: 0 })
+    const form = createForm({ foo: "b" }).config({ debounceChanges: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -236,7 +236,7 @@ describe("FormBinder", () => {
   })
 
   it("binds radio without value", async () => {
-    const form = createForm({ foo: false }).configure({ debounceChanges: 0 })
+    const form = createForm({ foo: false }).config({ debounceChanges: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
