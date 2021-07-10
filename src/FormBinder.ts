@@ -56,7 +56,7 @@ export class FormBinder implements ObservableFormBinder {
   checkbox(path: string): CheckboxBinding {
     return {
       name: path,
-      checked: this.target.getAt(path),
+      checked: !!this.target.getAt(path),
       onChange: (e) => this.target.setAt(path, !!e.target.checked),
     }
   }

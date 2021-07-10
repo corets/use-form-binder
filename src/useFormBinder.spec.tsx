@@ -1,8 +1,8 @@
 import React from "react"
 import { Form } from "@corets/form"
 import { useFormBinder } from "./useFormBinder"
-import { mount } from "enzyme"
 import { FormBinder } from "./FormBinder"
+import { render } from "@testing-library/react"
 
 describe("useFormBinder", () => {
   it("returns a form binder", () => {
@@ -15,7 +15,7 @@ describe("useFormBinder", () => {
       return null
     }
 
-    const wrapper = mount(<Test />)
+    render(<Test />)
 
     expect(receivedFormBinder instanceof FormBinder).toBe(true)
   })

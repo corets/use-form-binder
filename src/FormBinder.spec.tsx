@@ -1,10 +1,9 @@
 import React from "react"
 import { FormBinder, useFormBinder } from "./index"
-import { mount } from "enzyme"
-import { act } from "react-dom/test-utils"
 import { createTimeout } from "@corets/promise-helpers"
 import { createForm } from "@corets/form"
 import { useForm } from "@corets/use-form"
+import { act, fireEvent, render, screen } from "@testing-library/react"
 
 describe("FormBinder", () => {
   it("binds submit", async () => {
@@ -13,21 +12,22 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .config({ debounceChanges: 0 })
+      .config({ debounce: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
       return (
-        <form {...bind.form()}>
+        <form role="form" {...bind.form()}>
           <button type="submit">click</button>
         </form>
       )
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("form")
+    render(<Test />)
 
-    target().simulate("submit")
+    const target = screen.getByRole("form")
+
+    fireEvent.submit(target)
 
     await createTimeout(0)
 
@@ -41,21 +41,22 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .config({ debounceChanges: 0 })
+      .config({ debounce: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
       return (
-        <form {...bind.form({ validate: false })}>
+        <form role="form" {...bind.form({ validate: false })}>
           <button type="submit">click</button>
         </form>
       )
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("form")
+    render(<Test />)
 
-    target().simulate("submit")
+    const target = screen.getByRole("form")
+
+    fireEvent.submit(target)
 
     await createTimeout(0)
 
@@ -69,12 +70,12 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .config({ debounceChanges: 0 })
+      .config({ debounce: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
       return (
-        <form>
+        <form role="form">
           <button {...bind.button()} type="submit">
             click
           </button>
@@ -82,10 +83,11 @@ describe("FormBinder", () => {
       )
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("button")
+    render(<Test />)
 
-    target().simulate("click")
+    const target = screen.getByRole("button")
+
+    fireEvent.click(target)
 
     await createTimeout(0)
 
@@ -99,12 +101,12 @@ describe("FormBinder", () => {
     const form = createForm({})
       .handler(handler)
       .validator(validator)
-      .config({ debounceChanges: 0 })
+      .config({ debounce: 0 })
     const bind = new FormBinder(form)
 
     const Test = () => {
       return (
-        <form>
+        <form role="form">
           <button {...bind.button({ validate: false })} type="submit">
             click
           </button>
@@ -112,10 +114,11 @@ describe("FormBinder", () => {
       )
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("button")
+    render(<Test />)
 
-    target().simulate("click")
+    const target = screen.getByRole("button")
+
+    fireEvent.click(target)
 
     await createTimeout(0)
 
@@ -124,30 +127,30 @@ describe("FormBinder", () => {
   })
 
   it("disables submit button during submit by default", async () => {
-    const form = createForm({}).config({ debounceChanges: 0 })
+    const form = createForm({}).config({ debounce: 0 })
     const bind = new FormBinder(form)
 
     expect(bind.button().disabled).toBe(false)
 
-    form.submitting.set(true)
+    form.setSubmitting(true)
 
     expect(bind.button().disabled).toBe(true)
 
-    form.submitting.set(false)
+    form.setSubmitting(false)
 
     expect(bind.button().disabled).toBe(false)
 
-    form.submitting.set(true)
+    form.setSubmitting(true)
 
     expect(bind.button({ disableOnSubmit: false }).disabled).toBe(false)
 
-    form.submitting.set(false)
+    form.setSubmitting(false)
 
     expect(bind.button({ disableOnSubmit: false }).disabled).toBe(false)
   })
 
   it("binds input", async () => {
-    const form = createForm({ foo: "bar" }).config({ debounceChanges: 0 })
+    const form = createForm({ foo: "bar" }).config({ debounce: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -155,41 +158,56 @@ describe("FormBinder", () => {
       return <input {...bind.input("foo")} />
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("input")
+    render(<Test />)
 
-    expect(target().prop("name")).toBe("foo")
-    expect(target().prop("value")).toBe("bar")
+    const target = screen.getByRole("textbox")
 
-    target().simulate("change", { target: { value: "baz" } })
+    expect(target.getAttribute("name")).toBe("foo")
+    expect(target.getAttribute("value")).toBe("bar")
 
-    expect(target().prop("value")).toBe("baz")
+    fireEvent.change(target, { target: { value: "baz" } })
+
+    await act(() => createTimeout(50))
+
+    expect(target.getAttribute("value")).toBe("baz")
     expect(form.getAt("foo")).toBe("baz")
   })
 
   it("binds select", async () => {
-    const form = createForm({ foo: "bar" }).config({ debounceChanges: 0 })
+    const form = createForm({ foo: "bar" }).config({ debounce: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
 
-      return <select {...bind.select("foo")} />
+      return (
+        <select data-testid="select" {...bind.select("foo")}>
+          <option value="bar" data-testid="option1" />
+          <option value="baz" data-testid="option2" />
+        </select>
+      )
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("select")
+    render(<Test />)
 
-    expect(target().prop("name")).toBe("foo")
-    expect(target().prop("value")).toBe("bar")
+    await act(() => createTimeout(50))
 
-    target().simulate("change", { target: { value: "baz" } })
+    const target = screen.getByTestId("select")
+    const option1 = screen.getByTestId("option1") as HTMLOptionElement
+    const option2 = screen.getByTestId("option2") as HTMLOptionElement
 
-    expect(target().prop("value")).toBe("baz")
+    expect(target).toHaveAttribute("name", "foo")
+    expect(option1.selected).toBe(true)
+
+    fireEvent.change(target, { target: { value: "baz" } })
+
+    await act(() => createTimeout(50))
+
+    expect(option2.selected).toBe(true)
     expect(form.getAt("foo")).toBe("baz")
   })
 
   it("binds checkbox", async () => {
-    const form = createForm({ foo: false }).config({ debounceChanges: 0 })
+    const form = createForm({ foo: false }).config({ debounce: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -197,20 +215,23 @@ describe("FormBinder", () => {
       return <input {...bind.checkbox("foo")} type="checkbox" />
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("input")
+    render(<Test />)
 
-    expect(target().prop("name")).toBe("foo")
-    expect(target().prop("checked")).toBe(false)
+    const target = screen.getByRole("checkbox") as HTMLInputElement
 
-    target().simulate("change", { target: { checked: true } })
+    expect(target).toHaveAttribute("name", "foo")
+    expect(target.checked).toBe(false)
 
-    expect(target().prop("checked")).toBe(true)
+    fireEvent.click(target)
+
+    await act(() => createTimeout(50))
+
+    expect(target.checked).toBe(true)
     expect(form.getAt("foo")).toBe(true)
   })
 
   it("binds radio", async () => {
-    const form = createForm({ foo: "b" }).config({ debounceChanges: 0 })
+    const form = createForm({ foo: "b" }).config({ debounce: 0 })
 
     const Test = () => {
       const bind = useFormBinder(useForm(form))
@@ -218,46 +239,22 @@ describe("FormBinder", () => {
       return <input {...bind.radio("foo", "a")} type="radio" />
     }
 
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("input")
+    render(<Test />)
 
-    expect(target().prop("name")).toBe("foo")
-    expect(target().prop("checked")).toBe(false)
+    const target = screen.getByRole("radio") as HTMLInputElement
 
-    target().simulate("change", { value: "a" })
+    expect(target).toHaveAttribute("name", "foo")
+    expect(target.checked).toBe(false)
 
-    expect(target().prop("checked")).toBe(true)
+    fireEvent.click(target)
+
+    await act(() => createTimeout(50))
+
+    expect(target.checked).toBe(true)
     expect(form.getAt("foo")).toBe("a")
 
     act(() => form.setAt("foo", "b"))
-    wrapper.update()
 
-    expect(target().prop("checked")).toBe(false)
-  })
-
-  it("binds radio without value", async () => {
-    const form = createForm({ foo: false }).config({ debounceChanges: 0 })
-
-    const Test = () => {
-      const bind = useFormBinder(useForm(form))
-
-      return <input {...bind.radio("foo")} type="radio" />
-    }
-
-    const wrapper = mount(<Test />)
-    const target = () => wrapper.find("input")
-
-    expect(target().prop("name")).toBe("foo")
-    expect(target().prop("checked")).toBe(false)
-
-    target().simulate("change")
-
-    expect(target().prop("checked")).toBe(true)
-    expect(form.getAt("foo")).toBe(true)
-
-    act(() => form.setAt("foo", "yolo"))
-    wrapper.update()
-
-    expect(target().prop("checked")).toBe(false)
+    expect(target.checked).toBe(false)
   })
 })
