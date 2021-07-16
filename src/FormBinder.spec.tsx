@@ -132,19 +132,19 @@ describe("FormBinder", () => {
 
     expect(bind.button().disabled).toBe(false)
 
-    form.setSubmitting(true)
+    form.setIsSubmitting(true)
 
     expect(bind.button().disabled).toBe(true)
 
-    form.setSubmitting(false)
+    form.setIsSubmitting(false)
 
     expect(bind.button().disabled).toBe(false)
 
-    form.setSubmitting(true)
+    form.setIsSubmitting(true)
 
     expect(bind.button({ disableOnSubmit: false }).disabled).toBe(false)
 
-    form.setSubmitting(false)
+    form.setIsSubmitting(false)
 
     expect(bind.button({ disableOnSubmit: false }).disabled).toBe(false)
   })
