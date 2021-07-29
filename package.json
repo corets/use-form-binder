@@ -22,7 +22,7 @@
     "/dist"
   ],
   "repository": "github:corets/use-form-binder",
-  "homepage": "https://corets.github.io/use-form-binder",
+  "homepage": "https://docs.corets.io/hooks/use-form-binder",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
